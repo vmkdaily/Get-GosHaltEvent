@@ -26,7 +26,7 @@ Function Get-GosHaltEvent {
         
         By default we read in the logs and match on the common search terms:
 
-          'CPU has been disabled | reset by vSphere HA | rip= | MonitorGuestIRQRequest: sending 2'
+          'CPU has been disabled | reset by vSphere HA'
         
         Feel free to customize the script to search for what you want by default.  Alternatively,
         you can populate the Message parameter with the desired search term.
@@ -190,7 +190,7 @@ Function Get-GosHaltEvent {
   Process {
 
     #Default matches. Customize by separating with pipe. This is read later as regex.
-    [string]$DefaultEvents = 'CPU has been disabled | reset by vSphere HA | rip= | MonitorGuestIRQRequest: sending 2'
+    [string]$DefaultEvents = 'CPU has been disabled | reset by vSphere HA'
 
     #Handle custom Message to search for if any
     If($Message){
@@ -212,7 +212,7 @@ Function Get-GosHaltEvent {
         $null = $PSBoundParameters.Remove('PassThru')
       }
       try{
-        $result = Get-VIEvent @PSBoundParameters -ErrorAction Stop | Where-Object {$_.FullFormattedMessage -match 'CPU has been disabled | reset by vSphere HA'}
+        $result = Get-VIEvent @PSBoundParameters -ErrorAction Stop | Where-Object {$_.FullFormattedMessage -match $DefaultEvents}
       }
       catch{
         Write-Error -Message $Error[0].exception.Message
