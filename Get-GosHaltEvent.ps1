@@ -1,4 +1,4 @@
-﻿#requires -version 5.1
+#requires -version 5.1
 #requires -module VMware.VimAutomation.Core
 
 Function Get-GosHaltEvent {
@@ -7,6 +7,11 @@ Function Get-GosHaltEvent {
 
       .SYNOPSIS
         Performs Get-VIEvent to find any guest operating systems that experienced a halted os.
+        
+      .NOTES
+        Script:     Get-GosHaltEvent.ps1
+        Author:     Mike Nisk
+        Prior Art:  Based on Get-VIEvent by VMware,Inc.
 
       .DESCRIPTION
         Performs Get-VIEvent to find any guest operating systems that experienced a halted os.
@@ -50,7 +55,7 @@ Function Get-GosHaltEvent {
         DateTime.  Search logs until this Finish time.  Default is now.
 
       .PARAMETER MaxSamples
-        Integer.  Maximum number of events to parse.  The default is 100000.
+        Integer.  Maximum number of events to parse.  The default is 10000.
       
       .PARAMETER Types
         Optionally, enter the event type.
