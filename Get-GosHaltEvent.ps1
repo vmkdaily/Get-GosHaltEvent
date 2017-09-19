@@ -58,7 +58,8 @@ Function Get-GosHaltEvent {
         Integer.  Maximum number of events to parse.  The default is 10000.
       
       .PARAMETER Types
-        Optionally, enter the event type.
+        String.  Optionally, enter the desired event type to return (Error, Info, or Warning). 
+        Be aware that your most critical problems may show as 'Info'.
       
       .PARAMETER Message
         optionally, enter a custom string to match on.
@@ -91,7 +92,9 @@ Function Get-GosHaltEvent {
 
       CreatedTime         FullFormattedMessage
       -----------         --------------------
-      9/7/2017 1:17:59 AM Message on TESTVM01 on esx01.lab.local in LabDataCenter: The CPU has been disabled by the guest operating system. Power off or reset the virtual machin...
+      9/7/2017 1:17:59 AM Message on TESTVM01 on esx01.lab.local in LabDataCenter:
+                          The CPU has been disabled by the guest operating system.
+                          Power off or reset the virtual machin...
 
       .EXAMPLE
       Get-GosHaltEvent -Entity (Get-VM TESTVM01) -PassThru
@@ -120,6 +123,10 @@ Function Get-GosHaltEvent {
       IsPublic IsSerial Name                                     BaseType
       -------- -------- ----                                     --------
       True     False    VmMessageEvent                           VMware.Vim.VmEvent
+
+      This example shows the returned object type information.
+      This is the same as that returned by Get-VIEvent, the native
+      VMware cmdlet that we use in the background.
 
       .EXAMPLE
       $VMs = Get-VM -Location (Get-Folder 'My Test VMs')
@@ -173,10 +180,11 @@ Function Get-GosHaltEvent {
     [ValidateRange(1, 2147483647)]
     [int]$MaxSamples = 100000,
 
-    #String.  Optionally, enter one or more log types to search for. Valid options are 'Error','Info', and 'Warning'.
+    #String.  Optionally, enter one or more log types to search for. Valid options are 'Error','Info', and 'Warning'. 
     [Parameter(ParameterSetName='DefaultSet')]
     [ValidateSet('Error','Info','Warning')]
     [Alias('Type')]
+    [Alias('LogType')]
     [VMware.VimAutomation.ViCore.Types.V1.EventCategory[]]$Types,
 
     #String. Optionally, enter a message to search for in the virtual machine logs.
@@ -194,6 +202,14 @@ Function Get-GosHaltEvent {
 
     #Handle custom Message to search for if any
     If($Message){
+    
+      #Allows user to pass wildcard only (asterisk) to the Message parameter.
+      #This returns all VIEvent messages for the desired Entity.
+      If($Message -eq '*'){
+        $Message = ' '
+      }
+      
+      #Perform user requested custom search for Message
       try{
         $result = Get-VIEvent -Entity $Entity -Start $Start -Finish $Finish -MaxSamples $MaxSamples -ErrorAction Stop | Where-Object {$_.FullFormattedMessage -match $Message}
       }
